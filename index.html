@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0e">
+<title>FER — Musculation</title>
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --bg2: #16161a;
+    --bg3: #1e1e24;
+    --line: #2a2a32;
+    --text: #f4f1ea;
+    --muted: #9a958c;
+    --accent: #e85d04;
+    --accent2: #ffba08;
+    --ok: #52b788;
+    --danger: #e5383b;
+    --radius: 16px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
+  body { min-height: 100dvh; }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 0; background: none; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: calc(72px + var(--safe-b)); }
+  header.appbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(12,12,14,.92); backdrop-filter: blur(12px);
+    padding: 18px 18px 12px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; flex-direction: column; gap: 2px; }
+  .brand b { letter-spacing: .22em; font-size: 18px; }
+  .brand span { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
+  .pill { background: var(--bg3); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; font-size: 12px; color: var(--accent2); }
+  main { padding: 16px; flex: 1; }
+  .view { display: none; }
+  .view.on { display: block; }
+  h2 { margin: 0 0 12px; font-size: 22px; font-weight: 650; }
+  .sub { color: var(--muted); font-size: 13px; margin: -6px 0 14px; }
+  .grid { display: grid; gap: 10px; }
+  .card {
+    background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; 
+  }
+  .card h3 { margin: 0 0 4px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 13px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .between { justify-content: space-between; }
+  .grow { flex: 1; }
+  .btn {
+    background: var(--accent); color: #fff; border-radius: 12px; padding: 12px 14px; font-weight: 650;
+  }
+  .btn.ghost { background: var(--bg3); border: 1px solid var(--line); color: var(--text); }
+  .btn.ok { background: var(--ok); color: #08140e; }
+  .btn.sm { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+  .btn.full { width: 100%; }
+  .btn:active { transform: scale(.98); }
+  input, select {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px; outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 6px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .chip { white-space: nowrap; padding: 8px 12px; border-radius: 999px; background: var(--bg3); border: 1px solid var(--line); font-size: 13px; }
+  .chip.on { background: var(--accent); border-color: var(--accent); }
+  .setline {
+    display: grid; grid-template-columns: 28px 1fr 1fr 44px; gap: 8px; align-items: center;
+    margin-top: 8px;
+  }
+  .setline span { color: var(--muted); font-size: 13px; }
+  .setline input { padding: 10px; text-align: center; }
+  .check {
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg3);
+    display: grid; place-items: center; font-size: 16px;
+  }
+  .check.done { background: var(--ok); color: #08140e; border-color: var(--ok); }
+  nav.tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    background: rgba(12,12,14,.96); border-top: 1px solid var(--line);
+    padding: 8px 8px calc(8px + var(--safe-b));
+    display: flex; justify-content: space-around; max-width: 480px; margin: 0 auto;
+  }
+  nav.tabbar button { color: var(--muted); font-size: 11px; display: flex; flex-direction: column; gap: 3px; align-items: center; min-width: 64px; }
+  nav.tabbar button.on { color: var(--accent2); }
+  nav.tabbar b { font-size: 16px; font-weight: 500; }
+  .timer {
+    position: fixed; left: 16px; right: 16px; bottom: calc(78px + var(--safe-b));
+    max-width: 448px; margin: 0 auto; background: #1a120c; border: 1px solid var(--accent);
+    border-radius: 16px; padding: 12px 14px; display: none; align-items: center; justify-content: space-between;
+    z-index: 25;
+  }
+  .timer.on { display: flex; }
+  .timer strong { font-variant-numeric: tabular-nums; font-size: 22px; color: var(--accent2); }
+  .stat { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat .card b { font-size: 22px; display: block; }
+  .ex { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .ex:last-child { border-bottom: 0; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent2); }
+  .empty { text-align: center; color: var(--muted); padding: 28px 8px; }
+  .danger { color: var(--danger); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="brand"><b>FER</b><span>musculation · suivi</span></div>
+    <div class="pill" id="streak">0 séance</div>
+  </header>
+  <main>
+    <section class="view on" id="view-home">
+      <h2>Aujourd’hui</h2>
+      <p class="sub">Choisis un programme ou lance une séance libre.</p>
+      <div class="stat" style="margin-bottom:12px">
+        <div class="card"><span class="muted">Séances</span><b id="stat-sessions">0</b></div>
+        <div class="card"><span class="muted">Volume 7j</span><b id="stat-vol">0 kg</b></div>
+      </div>
+      <div class="grid" id="program-list"></div>
+      <button class="btn full" style="margin-top:12px" id="free-session">Séance libre</button>
+    </section>
+
+    <section class="view" id="view-session">
+      <div class="row between">
+        <h2 id="session-title">Séance</h2>
+        <button class="btn ghost sm" id="end-session">Terminer</button>
+      </div>
+      <p class="sub" id="session-sub">Coche chaque série. Le chrono de repos démarre.</p>
+      <div id="session-body"></div>
+      <button class="btn ghost full" id="add-ex" style="margin-top:12px">+ Ajouter un exercice</button>
+    </section>
+
+    <section class="view" id="view-library">
+      <h2>Exercices</h2>
+      <input id="search" placeholder="Rechercher un mouvement…" />
+      <div class="chips" id="groups" style="margin:12px 0"></div>
+      <div id="library"></div>
+    </section>
+
+    <section class="view" id="view-log">
+      <h2>Historique</h2>
+      <p class="sub">Tes séances restent sur cet appareil.</p>
+      <div id="history"></div>
+    </section>
+  </main>
+</div>
+
+<div class="timer" id="timer">
+  <div>
+    <div class="muted">Repos</div>
+    <strong id="timer-val">1:30</strong>
+  </div>
+  <div class="row">
+    <button class="btn ghost sm" id="timer-skip">Passer</button>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <button class="on" data-tab="home"><b>⌂</b>Accueil</button>
+  <button data-tab="session"><b>▶</b>Séance</button>
+  <button data-tab="library"><b>☰</b>Exercices</button>
+  <button data-tab="log"><b>◷</b>Journal</button>
+</nav>
+
+<script>
+const EXERCISES = [
+  { id:"dc", name:"Développé couché", group:"Pecs", equip:"Barre" },
+  { id:"di", name:"Développé incliné haltères", group:"Pecs", equip:"Haltères" },
+  { id:"ec", name:"Écarté poulie", group:"Pecs", equip:"Poulie" },
+  { id:"dips", name:"Dips", group:"Pecs", equip:"Poids du corps" },
+  { id:"td", name:"Tirage dos horizontal", group:"Dos", equip:"Poulie" },
+  { id:"tr", name:"Tractions", group:"Dos", equip:"Poids du corps" },
+  { id:"sd", name:"Soulevé de terre", group:"Dos", equip:"Barre" },
+  { id:"rh", name:"Rowing haltère", group:"Dos", equip:"Haltères" },
+  { id:"dm", name:"Développé militaire", group:"Épaules", equip:"Barre" },
+  { id:"el", name:"Élévations latérales", group:"Épaules", equip:"Haltères" },
+  { id:"of", name:"Oiseau", group:"Épaules", equip:"Haltères" },
+  { id:"sq", name:"Squat", group:"Jambes", equip:"Barre" },
+  { id:"fp", name:"Presse à cuisses", group:"Jambes", equip:"Machine" },
+  { id:"fl", name:"Fentes marchées", group:"Jambes", equip:"Haltères" },
+  { id:"lj", name:"Leg curl", group:"Jambes", equip:"Machine" },
+  { id:"le", name:"Leg extension", group:"Jambes", equip:"Machine" },
+  { id:"mo", name:"Mollets debout", group:"Jambes", equip:"Machine" },
+  { id:"bc", name:"Curl barre", group:"Bras", equip:"Barre" },
+  { id:"ch", name:"Curl haltères", group:"Bras", equip:"Haltères" },
+  { id:"ep", name:"Extensions poulie", group:"Bras", equip:"Poulie" },
+  { id:"bf", name:"Barre au front", group:"Bras", equip:"Barre" },
+  { id:"cr", name:"Crunch", group:"Abdos", equip:"Poids du corps" },
+  { id:"pl", name:"Planche", group:"Abdos", equip:"Poids du corps" },
+  { id:"rl", name:"Relevé de jambes", group:"Abdos", equip:"Poids du corps" }
+];
+
+const PROGRAMS = [
+  { id:"ppl-push", name:"Push", desc:"Pecs · épaules · triceps", rest:90, moves:["dc","di","dm","el","ep"] },
+  { id:"ppl-pull", name:"Pull", desc:"Dos · biceps", rest:90, moves:["tr","td","rh","bc","ch"] },
+  { id:"ppl-legs", name:"Legs", desc:"Quadris · ischios · mollets", rest:120, moves:["sq","fp","lj","le","mo"] },
+  { id:"full", name:"Full body", desc:"Tout le corps, 45–60 min", rest:90, moves:["sq","dc","td","dm","pl"] }
+];
+
+const KEY = "fer-muscu-v1";
+let db = load();
+let session = null;
+let restLeft = 0;
+let restTimer = null;
+let filterGroup = "Tous";
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || { sessions: [] }; }
+  catch { return { sessions: [] }; }
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
+
+function tab(name) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("on"));
+  document.getElementById("view-" + name).classList.add("on");
+  document.querySelectorAll("nav.tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+  if (name === "home") renderHome();
+  if (name === "library") renderLibrary();
+  if (name === "log") renderHistory();
+  if (name === "session") renderSession();
+}
+
+document.querySelectorAll("nav.tabbar button").forEach(b => b.onclick = () => tab(b.dataset.tab));
+
+function renderHome() {
+  const weekAgo = Date.now() - 7 * 864e5;
+  const vol = db.sessions.filter(s => s.ended && s.ended > weekAgo).reduce((a, s) => a + volumeOf(s), 0);
+  document.getElementById("stat-sessions").textContent = db.sessions.length;
+  document.getElementById("stat-vol").textContent = Math.round(vol).toLocaleString("fr-FR") + " kg";
+  document.getElementById("streak").textContent = db.sessions.length + (db.sessions.length > 1 ? " séances" : " séance");
+  document.getElementById("program-list").innerHTML = PROGRAMS.map(p => `
+    <div class="card">
+      <div class="row between">
+        <div>
+          <div class="tag">${p.moves.length} exercices</div>
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+        </div>
+        <button class="btn sm" data-start="${p.id}">Lancer</button>
+      </div>
+    </div>`).join("");
+  document.querySelectorAll("[data-start]").forEach(b => b.onclick = () => startProgram(b.dataset.start));
+}
+
+function startProgram(id) {
+  const p = PROGRAMS.find(x => x.id === id);
+  session = {
+    title: p.name,
+    rest: p.rest,
+    started: Date.now(),
+    exercises: p.moves.map(mid => ({
+      id: mid,
+      name: EXERCISES.find(e => e.id === mid).name,
+      sets: [blankSet(), blankSet(), blankSet()]
+    }))
+  };
+  tab("session");
+}
+
+document.getElementById("free-session").onclick = () => {
+  session = { title: "Séance libre", rest: 90, started: Date.now(), exercises: [] };
+  tab("session");
+  addExercisePrompt();
+};
+
+function blankSet() { return { kg: "", reps: "", done: false }; }
+
+function renderSession() {
+  const body = document.getElementById("session-body");
+  if (!session) {
+    body.innerHTML = `<div class="empty">Aucune séance en cours.<br><button class="btn" style="margin-top:12px" id="go-home">Choisir un programme</button></div>`;
+    document.getElementById("go-home").onclick = () => tab("home");
+    document.getElementById("session-title").textContent = "Séance";
+    return;
+  }
+  document.getElementById("session-title").textContent = session.title;
+  body.innerHTML = session.exercises.map((ex, ei) => `
+    <div class="card" style="margin-bottom:10px">
+      <div class="row between">
+        <h3>${ex.name}</h3>
+        <button class="danger sm" data-rm="${ei}">retirer</button>
+      </div>
+      <div class="setline muted"><span>#</span><span>kg</span><span>reps</span><span></span></div>
+      ${ex.sets.map((s, si) => `
+        <div class="setline">
+          <span>${si + 1}</span>
+          <input inputmode="decimal" value="${s.kg}" data-kg="${ei}-${si}" />
+          <input inputmode="numeric" value="${s.reps}" data-reps="${ei}-${si}" />
+          <button class="check ${s.done ? "done" : ""}" data-done="${ei}-${si}">${s.done ? "✓" : ""}</button>
+        </div>`).join("")}
+      <button class="btn ghost sm" style="margin-top:10px" data-addset="${ei}">+ série</button>
+    </div>`).join("") || `<div class="empty">Ajoute un exercice pour commencer.</div>`;
+
+  body.querySelectorAll("[data-kg]").forEach(inp => inp.oninput = () => {
+    const [ei, si] = inp.dataset.kg.split("-").map(Number);
+    session.exercises[ei].sets[si].kg = inp.value;
+  });
+  body.querySelectorAll("[data-reps]").forEach(inp => inp.oninput = () => {
+    const [ei, si] = inp.dataset.reps.split("-").map(Number);
+    session.exercises[ei].sets[si].reps = inp.value;
+  });
+  body.querySelectorAll("[data-done]").forEach(btn => btn.onclick = () => {
+    const [ei, si] = btn.dataset.done.split("-").map(Number);
+    const set = session.exercises[ei].sets[si];
+    set.done = !set.done;
+    if (set.done) startRest(session.rest || 90);
+    renderSession();
+  });
+  body.querySelectorAll("[data-addset]").forEach(btn => btn.onclick = () => {
+    session.exercises[+btn.dataset.addset].sets.push(blankSet());
+    renderSession();
+  });
+  body.querySelectorAll("[data-rm]").forEach(btn => btn.onclick = () => {
+    session.exercises.splice(+btn.dataset.rm, 1);
+    renderSession();
+  });
+}
+
+function addExercisePrompt() {
+  const names = EXERCISES.map(e => e.name);
+  const pick = prompt("Exercice :\n" + names.join("\n"));
+  if (!pick) return;
+  const found = EXERCISES.find(e => e.name.toLowerCase() === pick.trim().toLowerCase()) || { id: "custom-" + Date.now(), name: pick.trim() };
+  session.exercises.push({ id: found.id, name: found.name, sets: [blankSet(), blankSet(), blankSet()] });
+  renderSession();
+}
+document.getElementById("add-ex").onclick = () => { if (!session) { session = { title: "Séance libre", rest: 90, started: Date.now(), exercises: [] }; } addExercisePrompt(); };
+
+document.getElementById("end-session").onclick = () => {
+  if (!session) return;
+  const doneSets = session.exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
+  if (!doneSets) { session = null; tab("home"); return; }
+  db.sessions.unshift({
+    title: session.title,
+    started: session.started,
+    ended: Date.now(),
+    exercises: session.exercises
+  });
+  save();
+  session = null;
+  stopRest();
+  tab("log");
+};
+
+function volumeOf(s) {
+  return s.exercises.reduce((a, e) => a + e.sets.filter(x => x.done).reduce((b, x) => b + (parseFloat(x.kg) || 0) * (parseInt(x.reps, 10) || 0), 0), 0);
+}
+
+function renderHistory() {
+  const el = document.getElementById("history");
+  if (!db.sessions.length) { el.innerHTML = `<div class="empty">Aucune séance enregistrée.</div>`; return; }
+  el.innerHTML = db.sessions.map((s, i) => `
+    <div class="card" style="margin-bottom:10px">
+      <div class="row between">
+        <div>
+          <div class="tag">${new Date(s.ended).toLocaleDateString("fr-FR", { weekday:"short", day:"numeric", month:"short" })}</div>
+          <h3>${s.title}</h3>
+          <p>${Math.round(volumeOf(s)).toLocaleString("fr-FR")} kg · ${s.exercises.length} exercices</p>
+        </div>
+        <button class="danger sm" data-del="${i}">suppr.</button>
+      </div>
+    </div>`).join("");
+  el.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+    db.sessions.splice(+b.dataset.del, 1);
+    save();
+    renderHistory();
+    renderHome();
+  });
+}
+
+function renderLibrary() {
+  const groups = ["Tous", ...new Set(EXERCISES.map(e => e.group))];
+  document.getElementById("groups").innerHTML = groups.map(g => `<button class="chip ${g === filterGroup ? "on" : ""}" data-g="${g}">${g}</button>`).join("");
+  document.querySelectorAll("[data-g]").forEach(c => c.onclick = () => { filterGroup = c.dataset.g; renderLibrary(); });
+  const q = (document.getElementById("search").value || "").toLowerCase();
+  const list = EXERCISES.filter(e => (filterGroup === "Tous" || e.group === filterGroup) && e.name.toLowerCase().includes(q));
+  document.getElementById("library").innerHTML = list.map(e => `
+    <div class="ex row between">
+      <div><b>${e.name}</b><div class="muted">${e.group} · ${e.equip}</div></div>
+      <button class="btn sm" data-add="${e.id}">+ séance</button>
+    </div>`).join("");
+  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => {
+    if (!session) session = { title: "Séance libre", rest: 90, started: Date.now(), exercises: [] };
+    const e = EXERCISES.find(x => x.id === b.dataset.add);
+    session.exercises.push({ id: e.id, name: e.name, sets: [blankSet(), blankSet(), blankSet()] });
+    tab("session");
+  });
+}
+document.getElementById("search").oninput = renderLibrary;
+
+function startRest(sec) {
+  restLeft = sec;
+  document.getElementById("timer").classList.add("on");
+  tick();
+  clearInterval(restTimer);
+  restTimer = setInterval(tick, 1000);
+}
+function tick() {
+  if (restLeft <= 0) { stopRest(); return; }
+  const m = Math.floor(restLeft / 60);
+  const s = String(restLeft % 60).padStart(2, "0");
+  document.getElementById("timer-val").textContent = m + ":" + s;
+  restLeft--;
+}
+function stopRest() {
+  clearInterval(restTimer);
+  document.getElementById("timer").classList.remove("on");
+}
+document.getElementById("timer-skip").onclick = stopRest;
+
+renderHome();
+</script>
+</body>
+</html>
